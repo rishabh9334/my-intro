@@ -1,1 +1,304 @@
-# my-intro
+#intro
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rishabh • Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --bg-soft:#0f1320;
+      --fg:#e6e9ef;
+      --muted:#9aa4b2;
+      --accent:#7c4dff;
+      --accent-2:#00d8ff;
+      --glow:0 0 30px var(--accent);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0; font-family:Poppins,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--fg); background: radial-gradient(1200px 800px at 90% -10%, rgba(124,77,255,.15), transparent 60%),
+                 radial-gradient(800px 600px at -10% 110%, rgba(0,216,255,.12), transparent 60%),
+                 linear-gradient(180deg, #0b0d12 0%, #0a0c13 100%);
+      overflow:hidden; /* we'll manage scroll to create page panels */
+    }
+
+    /* Floating particles canvas */
+    #fx{position:fixed; inset:0; z-index:0; filter:contrast(120%) saturate(105%);}    
+
+    /* Page container */
+    .stage{position:relative; z-index:1; width:100%; height:100%;}
+    .panel{
+      position:absolute; inset:0; display:grid; place-items:center; padding:clamp(16px, 4vw, 48px);
+      opacity:0; transform:translateY(40px) scale(.98); pointer-events:none;
+      transition:opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1);
+    }
+    .panel.active{opacity:1; transform:none; pointer-events:auto;}
+
+    /* Card */
+    .card{
+      width:min(100%, 1040px); background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px);
+      border-radius:var(--radius); padding: clamp(20px, 4vw, 48px);
+      box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 120px rgba(124,77,255,.08) inset;
+    }
+
+    .title{
+      font-family:Orbitron, Poppins, sans-serif; letter-spacing:.04em;
+      font-size:clamp(28px, 6vw, 64px); margin:0 0 .25em; text-align:center;
+      text-shadow:0 0 12px rgba(124,77,255,.35), 0 0 24px rgba(0,216,255,.25);
+    }
+    .subtitle{color:var(--muted); text-align:center; margin:0 auto 1.25em; max-width:70ch;}
+
+    /* Fancy gradient text */
+    .fx-text{background:linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+
+    /* Buttons */
+    .actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:28px;}
+    .btn{cursor:pointer; border:none; padding:14px 22px; font-weight:700; letter-spacing:.02em;
+      border-radius:14px; background:linear-gradient(180deg, rgba(124,77,255,.22), rgba(124,77,255,.06));
+      color:var(--fg); outline:none; position:relative; transition: transform .15s ease, box-shadow .2s ease, background .3s ease;}
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 32px rgba(124,77,255,.25);}    
+    .btn:active{transform:translateY(0)}
+    .btn.primary{background:linear-gradient(180deg, rgba(124,77,255,.35), rgba(124,77,255,.15)); box-shadow:0 8px 40px rgba(124,77,255,.25);} 
+
+    /* Anime motif background (subtle) */
+    .anime-bg{
+      position:absolute; inset:-2px; border-radius:inherit; pointer-events:none; opacity:.15;
+      background:
+        radial-gradient(180px 120px at 15% 20%, rgba(124,77,255,.6), transparent 70%),
+        radial-gradient(220px 160px at 80% 30%, rgba(0,216,255,.6), transparent 70%),
+        radial-gradient(200px 120px at 30% 80%, rgba(255,64,129,.5), transparent 70%),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><g fill="none" stroke="white" stroke-opacity="0.25"><path d="M0,560 C120,520 180,520 300,560"/><path d="M100,500 C240,460 300,460 420,500"/><path d="M200,440 C340,400 420,400 560,440"/></g><g fill="white" fill-opacity="0.18"><circle cx="120" cy="100" r="3"/><circle cx="230" cy="180" r="2"/><circle cx="470" cy="90" r="2"/><circle cx="640" cy="160" r="3"/></g></svg>');
+      background-size:cover; mix-blend-mode:screen;
+      filter:blur(0.2px);
+    }
+
+    /* PAGE 1 */
+    .hero{
+      display:grid; gap:14px; justify-items:center; text-align:center;
+    }
+    .glow{filter:drop-shadow(0 0 18px rgba(124,77,255,.45));}
+    .hero .title{animation:float 6s ease-in-out infinite;}
+    @keyframes float{ 0%,100%{ transform:translateY(0)} 50%{ transform:translateY(-8px)} }
+
+    /* PAGE 2 */
+    .about{display:grid; grid-template-columns: 1fr; gap:18px;}
+    @media (min-width: 860px){
+      .about{grid-template-columns: 1.2fr .8fr; align-items:center;}
+    }
+    .badge{display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(124,77,255,.12); font-size:12px; letter-spacing:.08em; text-transform:uppercase;}
+    .fancy h3{margin:.2em 0; font-size:clamp(22px,3.6vw,36px)}
+    .fancy p{margin:.2em 0; color:var(--muted)}
+    .neon{
+      font-family:Orbitron, Poppins, sans-serif; font-size:clamp(26px,4.4vw,44px);
+      text-shadow:0 0 10px rgba(124,77,255,.6), 0 0 24px rgba(0,216,255,.35);
+    }
+
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; border:1px dashed rgba(255,255,255,.15); margin:6px 6px 0 0; opacity:.9}
+    .chips{margin-top:8px}
+
+    /* PAGE 3 */
+    .follow{text-align:center}
+    .follow .title{margin-bottom:.1em}
+    .type{font-size:clamp(20px,3.5vw,32px); letter-spacing:.04em; min-height:1.6em}
+    .link-wrap{margin-top:14px}
+    .ig{
+      display:inline-block; padding:12px 18px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(180deg, rgba(0,216,255,.14), rgba(124,77,255,.14));
+      box-shadow:0 0 0 0 rgba(124,77,255,.4); text-decoration:none; color:var(--fg);
+      font-weight:700; letter-spacing:.02em; transition: box-shadow .35s ease, transform .2s ease;
+    }
+    .ig:hover{ box-shadow:0 0 24px 6px rgba(124,77,255,.25), 0 0 36px 12px rgba(0,216,255,.18); transform:translateY(-1px); }
+    .ig .under{ text-decoration:underline; text-underline-offset:5px; }
+
+    /* Footer nav hints */
+    .hint{position:fixed; left:16px; right:16px; bottom:12px; z-index:3; opacity:.7; text-align:center; font-size:12px; color:var(--muted)}
+
+    /* Next button group (shared) */
+    .next-group{display:flex; justify-content:center; margin-top:10px}
+
+    /* Accessibility prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce){
+      .panel{transition:none}
+      .hero .title{animation:none}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+  <div class="stage" id="stage">
+    <!-- Page 1 -->
+    <section class="panel active" data-page="1" aria-labelledby="p1-title">
+      <div class="card hero">
+        <span class="badge">Welcome • Dark Anime</span>
+        <h1 id="p1-title" class="title fx-text glow">Welcome to My Space</h1>
+        <p class="subtitle">A slick, animated, dark-themed hub crafted with love. Dive in!</p>
+        <div class="actions next-group">
+          <button class="btn primary" data-next>Next →</button>
+        </div>
+        <span class="anime-bg" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- Page 2 -->
+    <section class="panel" data-page="2" aria-labelledby="p2-title">
+      <div class="card">
+        <div class="about">
+          <div class="fancy">
+            <span class="badge">About Me</span>
+            <h2 id="p2-title" class="neon fx-text">Rishabh — Editor</h2>
+            <h3>From <span class="fx-text">Bihar</span>, crafting stories frame by frame.</h3>
+            <p>I'm <b>Rishabh</b>, an <b>editor</b> who blends rhythm, pacing, and style to turn raw footage into cinematic moments. I love sleek visuals, dynamic cuts, and anime-inspired motion.
+            </p>
+            <div class="chips">
+              <span class="chip">✂️ Video Editing</span>
+              <span class="chip">✨ Motion Aesthetics</span>
+              <span class="chip">🎴 Anime Vibes</span>
+            </div>
+            <div class="actions" style="margin-top:18px">
+              <button class="btn primary" data-next>Next → Page 3</button>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); text-align:center">
+              <h3 class="title" style="font-size:clamp(18px,3vw,28px); margin-bottom:8px">Signature Style</h3>
+              <p class="subtitle" style="margin-bottom:16px">Clean cuts • Beat sync • Soft neon glow • Subtle grain</p>
+              <div style="height:220px; position:relative; border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,.08)">
+                <div class="anime-bg" style="opacity:.25"></div>
+                <svg viewBox="0 0 600 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="g1" x1="0" x2="1">
+                      <stop offset="0" stop-color="#7c4dff"/>
+                      <stop offset="1" stop-color="#00d8ff"/>
+                    </linearGradient>
+                  </defs>
+                  <g fill="none" stroke="url(#g1)" stroke-width="2" opacity=".8">
+                    <path d="M0 110 Q 80 40 160 110 T 320 110 T 480 110 T 640 110"/>
+                    <path d="M0 150 Q 80 80 160 150 T 320 150 T 480 150 T 640 150" opacity=".6"/>
+                    <path d="M0 70 Q 80 0 160 70 T 320 70 T 480 70 T 640 70" opacity=".6"/>
+                  </g>
+                  <g fill="white" fill-opacity=".7">
+                    <circle r="2.5" cx="80" cy="36"/>
+                    <circle r="2.5" cx="220" cy="160"/>
+                    <circle r="2.5" cx="360" cy="24"/>
+                    <circle r="2.5" cx="520" cy="100"/>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="anime-bg" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- Page 3 -->
+    <section class="panel" data-page="3" aria-labelledby="p3-title">
+      <div class="card follow">
+        <h2 id="p3-title" class="title fx-text">Follow Me</h2>
+        <div id="type" class="type" aria-live="polite" aria-atomic="true"></div>
+        <div class="link-wrap">
+          <a class="ig" target="_blank" rel="noopener" href="https://www.instagram.com/_stranger_1st?igsh=dGV2eW9rOGM5cmR4">
+            <span class="under">instagram.com/_stranger_1st</span>
+          </a>
+        </div>
+        <div class="actions" style="margin-top:24px">
+          <button class="btn" data-prev>← Back</button>
+        </div>
+        <span class="anime-bg" aria-hidden="true"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="hint">Press ← → or swipe to navigate • Built for dark mode anime vibes</div>
+
+  <script>
+    // --- Simple page router ---
+    const panels=[...document.querySelectorAll('.panel')];
+    let idx=0;
+    const show=i=>{
+      panels.forEach((p,k)=>p.classList.toggle('active', k===i));
+      idx=i;
+    };
+    document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>show(Math.min(idx+1, panels.length-1))));
+    document.querySelectorAll('[data-prev]').forEach(b=>b.addEventListener('click',()=>show(Math.max(idx-1, 0))));
+    window.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight') show(Math.min(idx+1, panels.length-1));
+      if(e.key==='ArrowLeft') show(Math.max(idx-1, 0));
+    });
+
+    // Simple touch swipe
+    let startX=null; let moved=false;
+    window.addEventListener('touchstart',e=>{startX=e.touches[0].clientX; moved=false});
+    window.addEventListener('touchmove',()=>{moved=true});
+    window.addEventListener('touchend',e=>{
+      if(startX===null || !moved) return; const endX=e.changedTouches[0].clientX; const dx=endX-startX;
+      if(Math.abs(dx)>40){ dx<0 ? show(Math.min(idx+1, panels.length-1)) : show(Math.max(idx-1,0)); }
+      startX=null; moved=false;
+    });
+
+    // --- Typewriter for "Follow Me" ---
+    const typeTarget=document.getElementById('type');
+    const phrases=["Let\'s connect.", "Follow me for edits & vibes.", "New reels. New cuts. Same energy."];
+    let p=0, ch=0, dir=1; // dir 1 typing, -1 deleting
+    function tick(){
+      const full=phrases[p];
+      ch += dir;
+      if(ch<=0){ dir=1; p=(p+1)%phrases.length; ch=0; }
+      if(ch>=full.length){ dir=-1; setTimeout(()=>{}, 700); }
+      typeTarget.textContent= full.slice(0, ch);
+      const delay = dir>0 ? 70 : 40; // typing vs deleting speeds
+      setTimeout(tick, delay);
+    }
+    setTimeout(tick, 600);
+
+    // --- Soft particle field on canvas ---
+    const canvas=document.getElementById('fx');
+    const ctx=canvas.getContext('2d');
+    let W,H, dpr= Math.min(window.devicePixelRatio||1, 2);
+    const dots=[]; const DOTS=90;
+    function resize(){
+      W=canvas.width = Math.floor(innerWidth*dpr);
+      H=canvas.height= Math.floor(innerHeight*dpr);
+      canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px';
+    }
+    window.addEventListener('resize', resize); resize();
+    // init dots
+    for(let i=0;i<DOTS;i++){
+      dots.push({x:Math.random()*W, y:Math.random()*H, r: 0.6 + Math.random()*1.8, vx:(Math.random()-.5)*.2, vy:(Math.random()-.5)*.2});
+    }
+    function frame(){
+      ctx.clearRect(0,0,W,H);
+      for(const d of dots){
+        d.x+=d.vx; d.y+=d.vy;
+        if(d.x<0||d.x>W) d.vx*=-1; if(d.y<0||d.y>H) d.vy*=-1;
+        const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,14*dpr);
+        g.addColorStop(0, 'rgba(124,77,255,.30)');
+        g.addColorStop(1, 'rgba(124,77,255,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(d.x,d.y,d.r*dpr,0,Math.PI*2); ctx.fill();
+      }
+      // faint connecting lines
+      ctx.globalAlpha=.25;
+      ctx.beginPath();
+      for(let i=0;i<dots.length;i++){
+        for(let j=i+1;j<dots.length;j++){
+          const a=dots[i], b=dots[j]; const dx=a.x-b.x, dy=a.y-b.y; const dist=Math.hypot(dx,dy);
+          if(dist<120*dpr){ ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); }
+        }
+      }
+      ctx.strokeStyle='rgba(0,216,255,.10)'; ctx.stroke(); ctx.globalAlpha=1;
+      requestAnimationFrame(frame);
+    }
+    frame();
+  </script>
+</body>
+</html>
